@@ -6,7 +6,7 @@
 /*   By: kdal-gra <kdal-gra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/26 11:24:19 by kdal-gra          #+#    #+#             */
-/*   Updated: 2026/10/26 17:13:35 by kdal-gra         ###   ########.fr       */
+/*   Updated: 2026/10/27 16:26:52 by kdal-gra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,52 +25,65 @@ int	put_error(char *inputerror)
 
 int	ft_l_len(char *input, t_config *config)
 {
-	int i;
+	int	i;
 
 	i = 0;
-	while(i < config->l_len && input[i] != '\0')
+	while (i < config->l_len && input[i] != '\0')
 	{
 		write(1, &input[i], 1);
 		i++;
 	}
 	write(1, "\n", 1);
-	return(i);
+	return (i);
 }
 
-int ft_p_len(char *input, t_config *config)
+int	ft_p_len(char *input, t_config *config)
 {
-	int i;
-	int len;
-	int total_len;
+	int	i;
+	int	len;
+	int	total_len;
 
 	i = 0;
 	total_len = 0;
-	while(i < config->p_len)
+	while (i < config->p_len && *input != '\0')
 	{
 		len = ft_l_len(input, config);
 		input += len;
 		total_len += len;
 		i++;
 	}
-	write(1, "\n", 1);
-	return(total_len);
+	if (total_len == config->l_len * config->p_len)
+		write(1, "\n", 1);
+	return (total_len);
 }
 
 void	ft_make_paragraph(char *input, t_config *config)
 {
-	int i;
-	int len;
-	int total_len;
+	int	i;
+	int	char_paragraph_len;
 
 	i = 0;
-	total_len = 0;
-	while(i < config->p_nbr)
+	char_paragraph_len = 0;
+	while (i < config->p_nbr && *input != '\0')
 	{
-		len = ft_p_len(input, config);
-		input += len;
-		total_len += len;
+		char_paragraph_len = ft_p_len(input, config);
+		input += char_paragraph_len;
 		i++;
 	}
+	if (i < config->p_nbr || char_paragraph_len < config->l_len * config->p_len)
+		write(1, "Not enough paragraphs.\n", 23);
+	else if (*input != '\0')
+	{
+		write(1, "Rest: ", 6);
+		while (*input != '\0')
+			write(1, input++, 1);
+		write(1, "\n", 1);
+	}
+	if (char_paragraph_len < config->l_len * config->p_len
+		&& char_paragraph_len > 0)
+		write(1, "Missing line in paragraph.\n", 27);
+	if (char_paragraph_len % config->l_len != 0)
+		write(1, "Missing char in line.\n", 22);
 }
 
 int	main(int argc, char **argv)
@@ -81,7 +94,7 @@ int	main(int argc, char **argv)
 	config.p_len = 2;
 	config.p_nbr = 3;
 	if (argc != 2)
-		return (put_error("Error : usage ./a.out <text>\n"));
+		return (put_error("Error: usage ./a.out <text>\n"));
 	ft_make_paragraph(argv[1], &config);
-	return(0);
+	return (0);
 }
